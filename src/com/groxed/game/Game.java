@@ -25,6 +25,7 @@ public class Game extends Canvas implements Runnable {
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData(); //returns said image data as pixels array
 	
 	private Screen screen;
+	public InputHandler input;
 	
 	public JFrame frame;
 	
@@ -46,6 +47,7 @@ public class Game extends Canvas implements Runnable {
 	
 	public void init() {
 		screen = new Screen(WIDTH, HEIGHT, new SpriteSheet("/spritesheet.png"));
+		input = new InputHandler(this);
 	}
 
 	public synchronized void start() {
@@ -106,6 +108,10 @@ public class Game extends Canvas implements Runnable {
 	
 	public void tick() {
 		tickCount++;
+		if(input.up.isPressed()) { screen.yOffset--; }
+		if(input.down.isPressed()) { screen.yOffset++; }
+		if(input.left.isPressed()) { screen.xOffset--; }
+		if(input.right.isPressed()) { screen.xOffset++; }
 	}
 	
 	public void render() {
