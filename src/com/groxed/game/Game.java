@@ -5,6 +5,7 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
+import com.groxed.game.entities.Player;
 import com.groxed.game.gfx.Colors;
 import com.groxed.game.gfx.Screen;
 import com.groxed.game.gfx.SpriteSheet;
@@ -32,6 +33,7 @@ public class Game extends Canvas implements Runnable {
 	private Screen screen;
 	public InputHandler input;
 	public Level level;
+	public Player player;
 	
 	public JFrame frame;
 	
@@ -68,6 +70,8 @@ public class Game extends Canvas implements Runnable {
 		screen = new Screen(WIDTH, HEIGHT, new SpriteSheet("/spritesheet.png"));
 		input = new InputHandler(this);
 		level = new Level(64, 64);
+		player = new Player(level, 0, 0, input);
+		level.addEntity(player);
 	}
 
 	public synchronized void start() {
@@ -126,16 +130,10 @@ public class Game extends Canvas implements Runnable {
 		}
 	}
 	
-	private int x=0, y=0;
+
 	
 	public void tick() {
 		tickCount++;
-		if(input.up.isPressed()) { y--; }
-		if(input.down.isPressed()) { y++; }
-		if(input.left.isPressed()) { x--; }
-		if(input.right.isPressed()) { x++; }
-		
-		
 		level.tick();
 	}
 	
@@ -146,18 +144,30 @@ public class Game extends Canvas implements Runnable {
 			return;
 		}
 		
-		int xOffset = x - (screen.width/2);
-		int yOffset = y - (screen.height/2);
+		int xOffset = player.x - (screen.width/2);
+		int yOffset = player.y - (screen.height/2);
 		level.renderTiles(screen, xOffset, yOffset);
 		
 		
-		String msg = "This is our game!";
-		Font.render(msg, screen, screen.xOffset + screen.width / 2 - (msg.length() * 8 / 2), screen.yOffset + screen.height / 2, Colors.get(-1, -1, -1, 000));
 		
-		for(int y=0; y<screen.height; y++) {
-			for(int x=0; x<screen.width; x++) {
-				int colorCode = screen.pixels[x+y*screen.width];
-				if(colorCode <255) { pixels[x+y*WIDTH] = colors[colorCode];}
+		
+		
+		for(int x=0; x<level.width; x++) {
+			int color = Colors.get(-1, -1, -1, 000);
+			if(x%10==0 && x!= 0) {
+				color = Colors.get(-1, -1, -1, 500);
+			}
+			Font.render((x%10) + "", screen, 0 + (x*8),0, color);
+		}
+		
+		level.renderEntities(screen);
+		
+		for(int y =0; y<screen.height; y++) {
+			for(int x =0; x<screen.width; x++) {
+				int colorCode = screen.pixels[x + y*screen.width];
+				if(colorCode < 255) {
+					pixels[x+y*WIDTH] = colors[colorCode];
+				}
 			}
 		}
 		
